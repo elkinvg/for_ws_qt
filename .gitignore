@@ -1,0 +1,5 @@
+.git/*
+*~
+*.bck
+*.user
+*.tmp
