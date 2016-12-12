@@ -1,7 +1,7 @@
 #include "jsonparsingfortangows.h"
 
 #include "common_ws.h"
-#include <QJsonObject>
+
 #include <QJsonDocument>
 
 #include <iostream>
@@ -24,13 +24,40 @@ TangoDataFromJson* JsonParsingForTangoWs::parseJson(const QString &json)
         cout << "jsondoc.isObject()" << endl;
         QJsonObject jsonObj = jsondoc.object();
         TypeReq typeReq;
-        if(jsonObj.find("type_req")) {
-            if(jsonObj["type_req"] == "attribute")
+        auto isEvent = jsonObj.contains("event");
+        bool hasData = jsonObj.contains("data");
+
+        if(jsonObj.find("type_req") != jsonObj.end()) {
+            if(jsonObj["type_req"] == "attribute") {
                 typeReq = TypeReq::ATTRIBUTE;
-            if(jsonObj["type_req"] == "command")
+                if (hasData) {
+                    QJsonValue data = jsonObj["data"];
+                    auto isa = data.isArray();
+                    if (data.isArray()) {
+                        getFromAttrData(data.toArray());
+                    }
+                    //QJsonObject dataObj = data.toObject();
+
+                }
+            }
+            if(jsonObj["type_req"] == "command") {
                 typeReq = TypeReq::COMMAND;
+                cout << "-------------COMMAND-------------" << endl;
+            }
         }
     }
 
     return nullptr;
+}
+
+void JsonParsingForTangoWs::getFromAttrData(QJsonArray &attrDataJson)
+{
+    int size = attrDataJson.size();
+    QJsonObject out = attrDataJson[0].toObject();
+
+}
+
+void JsonParsingForTangoWs::getFromCommandData(QJsonObject &commDataJson)
+{
+
 }

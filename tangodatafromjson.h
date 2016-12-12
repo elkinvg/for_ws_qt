@@ -2,6 +2,13 @@
 #define TANGODATAFROMJSON_H
 
 #include <QString>
+#include <common_ws.h>
+
+#include <vector>
+
+using std::string;
+using std::vector;
+
 
 class TangoDataFromJson
 {

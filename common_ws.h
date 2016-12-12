@@ -39,6 +39,63 @@ enum CmdArgType_FromTango {
 
 enum AttrDataFormat_FromTango { SCALAR, SPECTRUM, IMAGE, FMT_UNKNOWN};
 
-enum TypeReq {ATTRIBUTE,COMMAND};
+enum class TypeReq {ATTRIBUTE,COMMAND};
+enum class ValOrArr {VALUE,ARRAY};
+enum class TypeData {BOOL,INT,DOUBLE,STRING,NONE};
+
+struct tangoAttrSpectrOrImage
+{
+    bool hasData {false};
+    TypeData typeData {TypeData::NONE};
+
+    int dimX;
+    int dimY;
+
+    vector<string> ansStringArray;
+    vector<bool> ansBoolArray;
+    vector<int> ansIntArray;
+    vector<double> ansDoubleArray;
+};
+
+struct tangoAttrOrCommandVal
+{
+    bool hasData {false};
+    TypeData typeData {TypeData::NONE};
+
+    string strVal;
+    bool boolVal;
+    int intVal;
+    double doubleVal;
+};
+
+
+struct tangoCommAnsArr
+{
+    bool hasData {false};
+    TypeData typeData {TypeData::NONE};
+
+    vector<string> ansStringArray;
+    vector<bool> ansBoolArray;
+    vector<int> ansIntArray;
+    vector<double> ansDoubleArray;
+};
+
+struct parsedWsJsonData
+{
+    TypeReq typeReq;
+    TypeData typeData;
+    string nameCommOrAttr;
+    string idReq;
+
+    vector<string> ansStringArray;
+    vector<bool> ansBoolArray;
+    vector<int> ansIntArray;
+    vector<double> ansDoubleArray;
+
+    tangoAttrSpectrOrImage attrArray;
+
+    string ansString;
+    bool ansBool;
+};
 
 #endif // COMMON_WS_H
