@@ -113,20 +113,22 @@ TangoDataFromAttribute JsonParsingForTangoWs::getAttr(QJsonObject& attrObj)
 TangoAttrSpectrOrImage JsonParsingForTangoWs::getAttrSpectrOrImage(QJsonArray &jsonArray)
 {
     TangoAttrSpectrOrImage spectrOrImage;
-    spectrOrImage.hasData = true;
 
     if (jsonArray.size()>0) {
         if (jsonArray[0].isBool()) {
             spectrOrImage.typeData = TypeData::BOOL;
             spectrOrImage.ansBoolArray = dataFromJsonArrayBool(jsonArray,spectrOrImage.typeData);
+            spectrOrImage.hasData = true;
         }
         if (jsonArray[0].isDouble()) {
             spectrOrImage.typeData = TypeData::DOUBLE;
             spectrOrImage.ansDoubleArray = dataFromJsonArrayDouble(jsonArray,spectrOrImage.typeData);
+            spectrOrImage.hasData = true;
         }
         if (jsonArray[0].isString()) {
             spectrOrImage.typeData = TypeData::STRING;
             spectrOrImage.ansStringArray = dataFromJsonArrayString(jsonArray,spectrOrImage.typeData);
+            spectrOrImage.hasData = true;
         }
     }
 
