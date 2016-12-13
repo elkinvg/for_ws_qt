@@ -1,6 +1,11 @@
 #ifndef COMMON_WS_H
 #define COMMON_WS_H
 
+#include <string>
+#include <vector>
+using std::string;
+using std::vector;
+
 enum CmdArgType_FromTango {
     DEV_VOID = 0,
     DEV_BOOLEAN,
@@ -39,17 +44,17 @@ enum CmdArgType_FromTango {
 
 enum AttrDataFormat_FromTango { SCALAR, SPECTRUM, IMAGE, FMT_UNKNOWN};
 
-enum class TypeReq {ATTRIBUTE,COMMAND};
-enum class ValOrArr {VALUE,ARRAY};
+enum class TypeReq {ATTRIBUTE,COMMAND,UNKNOWN};
+enum class ValOrArr {VALUE,ARRAY,UNKNOWN};
 enum class TypeData {BOOL,INT,DOUBLE,STRING,NONE};
 
-struct tangoAttrSpectrOrImage
+struct TangoAttrSpectrOrImage
 {
     bool hasData {false};
     TypeData typeData {TypeData::NONE};
 
-    int dimX;
-    int dimY;
+    int dimX {0};
+    int dimY {0};
 
     vector<string> ansStringArray;
     vector<bool> ansBoolArray;
@@ -57,7 +62,7 @@ struct tangoAttrSpectrOrImage
     vector<double> ansDoubleArray;
 };
 
-struct tangoAttrOrCommandVal
+struct TangoAttrOrCommandVal
 {
     bool hasData {false};
     TypeData typeData {TypeData::NONE};
@@ -69,7 +74,7 @@ struct tangoAttrOrCommandVal
 };
 
 
-struct tangoCommAnsArr
+struct TangoCommAnsArr
 {
     bool hasData {false};
     TypeData typeData {TypeData::NONE};
@@ -80,22 +85,32 @@ struct tangoCommAnsArr
     vector<double> ansDoubleArray;
 };
 
-struct parsedWsJsonData
+struct TangoDataFromCommand
 {
-    TypeReq typeReq;
-    TypeData typeData;
-    string nameCommOrAttr;
+    ValOrArr varOrArr {ValOrArr::UNKNOWN};
+    string commandName;
     string idReq;
+    TangoCommAnsArr argoutArray;
+    TangoAttrOrCommandVal argoutValue;
+};
 
-    vector<string> ansStringArray;
-    vector<bool> ansBoolArray;
-    vector<int> ansIntArray;
-    vector<double> ansDoubleArray;
+struct TangoDataFromAttribute {
+    ValOrArr varOrArr {ValOrArr::UNKNOWN};
+    string attrName;
+    string qual;
+    int timestamp;
+    TangoAttrOrCommandVal retValue;
+    TangoAttrSpectrOrImage retArray;
+};
 
-    tangoAttrSpectrOrImage attrArray;
-
-    string ansString;
-    bool ansBool;
+struct ParsedWsJsonData
+{
+    // тип запроса
+    TypeReq typeReq {TypeReq::UNKNOWN};
+    // Возвращаемые данные для атрибутов
+    vector<TangoDataFromAttribute> dataFromAttr;
+    // Возвращаемые данные для команд
+    TangoDataFromCommand dataFromCommand;
 };
 
 #endif // COMMON_WS_H
