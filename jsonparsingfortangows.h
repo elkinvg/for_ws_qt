@@ -12,23 +12,22 @@
 class JsonParsingForTangoWs
 {
 public:
-    JsonParsingForTangoWs();
-    ParsedWsJsonData parseJson(const QString& json);
+    //JsonParsingForTangoWs();
+    static ParsedWsJsonData parseJson(const QString& json);
 
-    vector<TangoDataFromAttribute> getDataFromAttr(QJsonArray &data);
-    TangoDataFromAttribute getAttr(QJsonObject &attrObj);
+    static vector<TangoDataFromAttribute> getDataFromAttr(QJsonArray &data);
+    static TangoDataFromAttribute getAttr(QJsonObject &attrObj);
 
-    TangoAttrSpectrOrImage getAttrSpectrOrImage(QJsonArray& jsonArray);
-    TangoAttrOrCommandVal getAttrValue(QJsonValue& jsonVal);
+    static TangoAttrSpectrOrImage getAttrSpectrOrImage(QJsonArray& jsonArray);
+    static TangoAttrOrCommandVal getAttrOrCommValue(QJsonValue& jsonVal);
 
-    vector<double> dataFromJsonArrayDouble(QJsonArray &arr, TypeData td);
-    vector<string> dataFromJsonArrayString(QJsonArray &arr, TypeData td);
-    vector<bool> dataFromJsonArrayBool(QJsonArray &arr, TypeData td);
+    static vector<double> dataFromJsonArrayDouble(QJsonArray &arr, TypeData td);
+    static vector<string> dataFromJsonArrayString(QJsonArray &arr, TypeData td);
+    static vector<bool> dataFromJsonArrayBool(QJsonArray &arr, TypeData td);
 
 
-    TangoDataFromCommand getDataFromComm(QJsonValue &data);
-
-    void getFromCommandData(QJsonObject &commDataJson);
+    static TangoDataFromCommand getDataFromComm(QJsonObject &comObj);
+    static TangoCommAnsArr getCommArrayAns(QJsonArray& jsonArray);
 };
 
 #endif // JSONPARSINGFORTANGOWS_H

@@ -44,7 +44,7 @@ enum CmdArgType_FromTango {
 
 enum AttrDataFormat_FromTango { SCALAR, SPECTRUM, IMAGE, FMT_UNKNOWN};
 
-enum class TypeReq {ATTRIBUTE,COMMAND,UNKNOWN};
+enum class TypeReq {ATTRIBUTE,COMMAND,ERROR,UNKNOWN};
 enum class ValOrArr {VALUE,ARRAY,UNKNOWN};
 enum class TypeData {BOOL,INT,DOUBLE,STRING,NONE};
 
@@ -105,7 +105,7 @@ struct TangoDataFromAttribute {
 
 struct ParsedWsJsonData
 {
-    // тип запроса
+    // тип запроса для возвращаемых данных
     TypeReq typeReq {TypeReq::UNKNOWN};
     // Возвращаемые данные для атрибутов
     vector<TangoDataFromAttribute> dataFromAttr;

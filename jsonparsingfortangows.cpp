@@ -8,10 +8,10 @@
 using std::cout;
 using std::endl;
 
-JsonParsingForTangoWs::JsonParsingForTangoWs()
-{
+//JsonParsingForTangoWs::JsonParsingForTangoWs()
+//{
 
-}
+//}
 
 ParsedWsJsonData JsonParsingForTangoWs::parseJson(const QString &json)
 {
@@ -22,7 +22,7 @@ ParsedWsJsonData JsonParsingForTangoWs::parseJson(const QString &json)
         return parsedJsonData;
 
     if(jsondoc.isObject()) {
-        cout << "jsondoc.isObject()" << endl;
+
         QJsonObject jsonObj = jsondoc.object();
         TypeReq typeReq;
         auto isEvent = jsonObj.contains("event");
@@ -40,9 +40,14 @@ ParsedWsJsonData JsonParsingForTangoWs::parseJson(const QString &json)
                 }
             }
             if(jsonObj["type_req"] == "command") {
-                typeReq = TypeReq::COMMAND;
-                parsedJsonData.typeReq = typeReq;
+                parsedJsonData.typeReq = TypeReq::COMMAND;
                 cout << "-------------COMMAND-------------" << endl;
+                if (hasData) {
+                    if (jsonObj["data"].isObject()) {
+                        QJsonObject dataComm = jsonObj["data"].toObject();
+                        parsedJsonData.dataFromCommand = getDataFromComm(dataComm);
+                    }
+                }
             }
         }
     }
@@ -64,6 +69,61 @@ vector<TangoDataFromAttribute> JsonParsingForTangoWs::getDataFromAttr(QJsonArray
     }
 
     return dataAttr;
+}
+
+TangoDataFromCommand JsonParsingForTangoWs::getDataFromComm(QJsonObject &comObj)
+{
+    TangoDataFromCommand dataComm;
+    if (!comObj.contains("command_name") || !comObj.contains("argout") )
+        return dataComm;
+
+    if (!comObj["command_name"].isString() )
+        return dataComm;
+
+    dataComm.commandName = comObj["command_name"].toString().toStdString();
+
+    if (comObj.contains("id_req")) {
+        if (comObj["id_req"].isString())
+            dataComm.idReq = comObj["id_req"].toString().toStdString();
+        if (comObj["id_req"].isDouble())
+            dataComm.idReq = std::to_string(comObj["id_req"].toDouble());
+    }
+
+    if(comObj["argout"].isArray()) {
+        dataComm.varOrArr = ValOrArr::ARRAY;
+        dataComm.argoutArray = getCommArrayAns(comObj["argout"].toArray());
+    }
+    else if (comObj["argout"].isBool() || comObj["argout"].isDouble() || comObj["argout"].isString() ) {
+        dataComm.varOrArr = ValOrArr::VALUE;
+        QJsonValue jsVal = comObj["argout"];
+        dataComm.argoutValue = getAttrOrCommValue(jsVal);
+    }
+
+    return dataComm;
+}
+
+TangoCommAnsArr JsonParsingForTangoWs::getCommArrayAns(QJsonArray &jsonArray)
+{
+    TangoCommAnsArr outComm;
+    if (jsonArray.size()>0) {
+        if (jsonArray[0].isBool()) {
+            outComm.typeData = TypeData::BOOL;
+            outComm.ansBoolArray = dataFromJsonArrayBool(jsonArray,outComm.typeData);
+            outComm.hasData = true;
+        }
+        if (jsonArray[0].isDouble()) {
+            outComm.typeData = TypeData::DOUBLE;
+            outComm.ansDoubleArray = dataFromJsonArrayDouble(jsonArray,outComm.typeData);
+            outComm.hasData = true;
+        }
+        if (jsonArray[0].isString()) {
+            outComm.typeData = TypeData::STRING;
+            outComm.ansStringArray = dataFromJsonArrayString(jsonArray,outComm.typeData);
+            outComm.hasData = true;
+        }
+    }
+
+    return outComm;
 }
 
 TangoDataFromAttribute JsonParsingForTangoWs::getAttr(QJsonObject& attrObj)
@@ -104,7 +164,7 @@ TangoDataFromAttribute JsonParsingForTangoWs::getAttr(QJsonObject& attrObj)
     else if (attrObj["data"].isBool() || attrObj["data"].isDouble() || attrObj["data"].isString() ) {
         attrDt.varOrArr = ValOrArr::VALUE;
         QJsonValue jsVal = attrObj["data"];
-        attrDt.retValue = getAttrValue(jsVal);;
+        attrDt.retValue = getAttrOrCommValue(jsVal);
     }
 
     return attrDt;
@@ -135,7 +195,7 @@ TangoAttrSpectrOrImage JsonParsingForTangoWs::getAttrSpectrOrImage(QJsonArray &j
     return spectrOrImage;
 }
 
-TangoAttrOrCommandVal JsonParsingForTangoWs::getAttrValue(QJsonValue &jsonVal)
+TangoAttrOrCommandVal JsonParsingForTangoWs::getAttrOrCommValue(QJsonValue &jsonVal)
 {
     TangoAttrOrCommandVal out;
 
@@ -183,13 +243,6 @@ vector<bool> JsonParsingForTangoWs::dataFromJsonArrayBool(QJsonArray &arr, TypeD
         out.push_back(iter.toBool());
     }
     return out;
-}
-
-TangoDataFromCommand JsonParsingForTangoWs::getDataFromComm(QJsonValue &data)
-{
-    TangoDataFromCommand dataComm;
-
-    return dataComm;
 }
 
 
