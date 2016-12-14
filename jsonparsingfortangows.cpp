@@ -62,10 +62,11 @@ vector<TangoDataFromAttribute> JsonParsingForTangoWs::getDataFromAttr(QJsonArray
     if (data.size() == 0)
         return dataAttr;
 
-    for (auto& ind: data) {
+    for (const auto& ind: data) {
         if (!ind.isObject())
             continue;
-        dataAttr.push_back(getAttr(ind.toObject()));
+        TangoDataFromAttribute tmp = getAttr(ind.toObject());
+        dataAttr.push_back(tmp);
     }
 
     return dataAttr;
@@ -102,23 +103,23 @@ TangoDataFromCommand JsonParsingForTangoWs::getDataFromComm(QJsonObject &comObj)
     return dataComm;
 }
 
-TangoCommAnsArr JsonParsingForTangoWs::getCommArrayAns(QJsonArray &jsonArray)
+TangoCommAnsArr JsonParsingForTangoWs::getCommArrayAns(const QJsonArray &jsonArray)
 {
     TangoCommAnsArr outComm;
     if (jsonArray.size()>0) {
         if (jsonArray[0].isBool()) {
             outComm.typeData = TypeData::BOOL;
-            outComm.ansBoolArray = dataFromJsonArrayBool(jsonArray,outComm.typeData);
+            outComm.ansBoolArray = dataFromJsonArrayBool(jsonArray);
             outComm.hasData = true;
         }
         if (jsonArray[0].isDouble()) {
             outComm.typeData = TypeData::DOUBLE;
-            outComm.ansDoubleArray = dataFromJsonArrayDouble(jsonArray,outComm.typeData);
+            outComm.ansDoubleArray = dataFromJsonArrayDouble(jsonArray);
             outComm.hasData = true;
         }
         if (jsonArray[0].isString()) {
             outComm.typeData = TypeData::STRING;
-            outComm.ansStringArray = dataFromJsonArrayString(jsonArray,outComm.typeData);
+            outComm.ansStringArray = dataFromJsonArrayString(jsonArray);
             outComm.hasData = true;
         }
     }
@@ -126,7 +127,7 @@ TangoCommAnsArr JsonParsingForTangoWs::getCommArrayAns(QJsonArray &jsonArray)
     return outComm;
 }
 
-TangoDataFromAttribute JsonParsingForTangoWs::getAttr(QJsonObject& attrObj)
+TangoDataFromAttribute JsonParsingForTangoWs::getAttr(const QJsonObject& attrObj)
 {
     TangoDataFromAttribute attrDt;
 
@@ -177,17 +178,17 @@ TangoAttrSpectrOrImage JsonParsingForTangoWs::getAttrSpectrOrImage(QJsonArray &j
     if (jsonArray.size()>0) {
         if (jsonArray[0].isBool()) {
             spectrOrImage.typeData = TypeData::BOOL;
-            spectrOrImage.ansBoolArray = dataFromJsonArrayBool(jsonArray,spectrOrImage.typeData);
+            spectrOrImage.ansBoolArray = dataFromJsonArrayBool(jsonArray);
             spectrOrImage.hasData = true;
         }
         if (jsonArray[0].isDouble()) {
             spectrOrImage.typeData = TypeData::DOUBLE;
-            spectrOrImage.ansDoubleArray = dataFromJsonArrayDouble(jsonArray,spectrOrImage.typeData);
+            spectrOrImage.ansDoubleArray = dataFromJsonArrayDouble(jsonArray);
             spectrOrImage.hasData = true;
         }
         if (jsonArray[0].isString()) {
             spectrOrImage.typeData = TypeData::STRING;
-            spectrOrImage.ansStringArray = dataFromJsonArrayString(jsonArray,spectrOrImage.typeData);
+            spectrOrImage.ansStringArray = dataFromJsonArrayString(jsonArray);
             spectrOrImage.hasData = true;
         }
     }
@@ -218,28 +219,28 @@ TangoAttrOrCommandVal JsonParsingForTangoWs::getAttrOrCommValue(QJsonValue &json
     return out;
 }
 
-vector<double> JsonParsingForTangoWs::dataFromJsonArrayDouble(QJsonArray &arr, TypeData td)
+vector<double> JsonParsingForTangoWs::dataFromJsonArrayDouble(const QJsonArray &arr)
 {
     vector<double> out;
-    for (auto& iter: arr) {
+    for (const auto& iter: arr) {
         out.push_back(iter.toDouble());
     }
     return out;
 }
 
-vector<std::string> JsonParsingForTangoWs::dataFromJsonArrayString(QJsonArray &arr, TypeData td)
+vector<std::string> JsonParsingForTangoWs::dataFromJsonArrayString(const QJsonArray &arr)
 {
     vector<std::string> out;
-    for (auto& iter: arr) {
+    for (const auto& iter: arr) {
         out.push_back(iter.toString().toStdString());
     }
     return out;
 }
 
-vector<bool> JsonParsingForTangoWs::dataFromJsonArrayBool(QJsonArray &arr, TypeData td)
+vector<bool> JsonParsingForTangoWs::dataFromJsonArrayBool(const QJsonArray &arr)
 {
     vector<bool> out;
-    for (auto& iter: arr) {
+    for (const auto& iter: arr) {
         out.push_back(iter.toBool());
     }
     return out;

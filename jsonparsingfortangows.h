@@ -16,18 +16,18 @@ public:
     static ParsedWsJsonData parseJson(const QString& json);
 
     static vector<TangoDataFromAttribute> getDataFromAttr(QJsonArray &data);
-    static TangoDataFromAttribute getAttr(QJsonObject &attrObj);
+    static TangoDataFromAttribute getAttr(const QJsonObject &attrObj);
 
     static TangoAttrSpectrOrImage getAttrSpectrOrImage(QJsonArray& jsonArray);
     static TangoAttrOrCommandVal getAttrOrCommValue(QJsonValue& jsonVal);
 
-    static vector<double> dataFromJsonArrayDouble(QJsonArray &arr, TypeData td);
-    static vector<string> dataFromJsonArrayString(QJsonArray &arr, TypeData td);
-    static vector<bool> dataFromJsonArrayBool(QJsonArray &arr, TypeData td);
+    static vector<double> dataFromJsonArrayDouble(const QJsonArray &arr);
+    static vector<string> dataFromJsonArrayString(const QJsonArray &arr);
+    static vector<bool> dataFromJsonArrayBool(const QJsonArray &arr);
 
 
     static TangoDataFromCommand getDataFromComm(QJsonObject &comObj);
-    static TangoCommAnsArr getCommArrayAns(QJsonArray& jsonArray);
+    static TangoCommAnsArr getCommArrayAns(const QJsonArray &jsonArray);
 };
 
 #endif // JSONPARSINGFORTANGOWS_H
