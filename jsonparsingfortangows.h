@@ -14,6 +14,7 @@ class JsonParsingForTangoWs
 public:
     //JsonParsingForTangoWs();
     static ParsedWsJsonData parseJson(const QString& json);
+private:
 
     static vector<TangoDataFromAttribute> getDataFromAttr(QJsonArray &data);
     static TangoDataFromAttribute getAttr(const QJsonObject &attrObj);
