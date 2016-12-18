@@ -4,9 +4,6 @@
 
 #include <QJsonDocument>
 
-#include <iostream>
-using std::cout;
-using std::endl;
 
 //JsonParsingForTangoWs::JsonParsingForTangoWs()
 //{
@@ -41,7 +38,6 @@ ParsedWsJsonData JsonParsingForTangoWs::parseJson(const QString &json)
             }
             if(jsonObj["type_req"] == "command") {
                 parsedJsonData.typeReq = TypeReq::COMMAND;
-                cout << "-------------COMMAND-------------" << endl;
                 if (hasData) {
                     if (jsonObj["data"].isObject()) {
                         QJsonObject dataComm = jsonObj["data"].toObject();
