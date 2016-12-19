@@ -4,13 +4,13 @@
 
 #include <QJsonDocument>
 
-
+#include <QDebug>
 //JsonParsingForTangoWs::JsonParsingForTangoWs()
 //{
 
 //}
 
-ParsedWsJsonData JsonParsingForTangoWs::parseJson(const QString &json)
+ParsedWsJsonData JsonParsingForTangoWs::parseJson(const QString &json, bool onlyError)
 {
     QJsonDocument jsondoc = QJsonDocument::fromJson(json.toUtf8());
     ParsedWsJsonData parsedJsonData;
@@ -23,25 +23,67 @@ ParsedWsJsonData JsonParsingForTangoWs::parseJson(const QString &json)
         QJsonObject jsonObj = jsondoc.object();
         TypeReq typeReq;
         auto isEvent = jsonObj.contains("event");
+        if (!isEvent)
+            return parsedJsonData;
         bool hasData = jsonObj.contains("data");
+        if (onlyError) {
+            if (jsonObj["event"].toString() != "error")
+                return parsedJsonData;
+        }
+        if (jsonObj["event"].toString() == "read") {
+            if(jsonObj.find("type_req") != jsonObj.end()) {
+                if(jsonObj["type_req"] == "attribute") {
+                    parsedJsonData.typeReq = TypeReq::ATTRIBUTE;
 
-        if(jsonObj.find("type_req") != jsonObj.end()) {
-            if(jsonObj["type_req"] == "attribute") {
-                parsedJsonData.typeReq = TypeReq::ATTRIBUTE;
-
-                if (hasData) {
-                    if (jsonObj["data"].isArray()) {
-                        QJsonArray dataArr = jsonObj["data"].toArray();
-                        parsedJsonData.dataFromAttr = getDataFromAttr(dataArr);
+                    if (hasData) {
+                        if (jsonObj["data"].isArray()) {
+                            QJsonArray dataArr = jsonObj["data"].toArray();
+                            parsedJsonData.dataFromAttr = getDataFromAttr(dataArr);
+                        }
+                    }
+                }
+                if(jsonObj["type_req"] == "command") {
+                    parsedJsonData.typeReq = TypeReq::COMMAND;
+                    if (hasData) {
+                        if (jsonObj["data"].isObject()) {
+                            QJsonObject dataComm = jsonObj["data"].toObject();
+                            parsedJsonData.dataFromCommand = getDataFromComm(dataComm);
+                        }
                     }
                 }
             }
-            if(jsonObj["type_req"] == "command") {
-                parsedJsonData.typeReq = TypeReq::COMMAND;
-                if (hasData) {
-                    if (jsonObj["data"].isObject()) {
-                        QJsonObject dataComm = jsonObj["data"].toObject();
-                        parsedJsonData.dataFromCommand = getDataFromComm(dataComm);
+        }
+        if (jsonObj["event"].toString() == "error") {
+            parsedJsonData.hasError = true;
+            vector<ErrorData> vecErr;
+            ErrorData errDt;
+            if (hasData) {
+                if (jsonObj["data"].isArray()) {
+                    QJsonArray errorArray = jsonObj["data"].toArray();
+                    if (errorArray[0].isObject()) {
+                        QJsonObject fromErr = errorArray[0].toObject();
+                        if (!fromErr.contains("type_req")) {
+                            return parsedJsonData;
+                        }
+                        if(jsonObj["type_req"].toString() == "attribute")
+                            parsedJsonData.typeReq = TypeReq::ATTRIBUTE;
+                        if(jsonObj["type_req"].toString() == "command")
+                            parsedJsonData.typeReq = TypeReq::COMMAND;
+
+                        if (fromErr.contains("error")) {
+                            errDt.errorMess = fromErr["error"].toString();
+                        }
+                        if (fromErr.contains("id_req")) {
+                            if (fromErr["id_req"].isString())
+                                errDt.id_req = fromErr["id_req"].toString();
+                            if (fromErr["id_req"].isDouble())
+                                errDt.id_req = QString::number(fromErr["id_req"].toDouble());
+                        }
+                        if (fromErr.contains("command_name")) {
+                            errDt.command_name = fromErr["command_name"].toString();
+                        }
+                        vecErr.push_back(errDt);
+                        parsedJsonData.errorData = vecErr;
                     }
                 }
             }
@@ -77,13 +119,13 @@ TangoDataFromCommand JsonParsingForTangoWs::getDataFromComm(QJsonObject &comObj)
     if (!comObj["command_name"].isString() )
         return dataComm;
 
-    dataComm.commandName = comObj["command_name"].toString().toStdString();
+    dataComm.commandName = comObj["command_name"].toString();
 
     if (comObj.contains("id_req")) {
         if (comObj["id_req"].isString())
-            dataComm.idReq = comObj["id_req"].toString().toStdString();
+            dataComm.idReq = comObj["id_req"].toString();
         if (comObj["id_req"].isDouble())
-            dataComm.idReq = std::to_string(comObj["id_req"].toDouble());
+            dataComm.idReq = QString::number(comObj["id_req"].toDouble());
     }
 
     if(comObj["argout"].isArray()) {
@@ -133,12 +175,12 @@ TangoDataFromAttribute JsonParsingForTangoWs::getAttr(const QJsonObject& attrObj
     if (!attrObj["attr"].isString())
         return attrDt;
 
-    attrDt.attrName = attrObj["attr"].toString().toStdString();
+    attrDt.attrName = attrObj["attr"].toString();
 
 
     if (attrObj.contains("qual")) {
         if (attrObj["qual"].isString())
-           attrDt.qual = attrObj["qual"].toString().toStdString();
+           attrDt.qual = attrObj["qual"].toString();
     }
 
     if (attrObj.contains("time")) {
@@ -207,7 +249,7 @@ TangoAttrOrCommandVal JsonParsingForTangoWs::getAttrOrCommValue(QJsonValue &json
         out.hasData = true;
     }
     if (jsonVal.isString()) {
-        out.strVal = jsonVal.toString().toStdString();
+        out.strVal = jsonVal.toString();
         out.typeData = TypeData::STRING;
         out.hasData = true;
     }
@@ -224,11 +266,11 @@ vector<double> JsonParsingForTangoWs::dataFromJsonArrayDouble(const QJsonArray &
     return out;
 }
 
-vector<std::string> JsonParsingForTangoWs::dataFromJsonArrayString(const QJsonArray &arr)
+vector<QString> JsonParsingForTangoWs::dataFromJsonArrayString(const QJsonArray &arr)
 {
-    vector<std::string> out;
+    vector<QString> out;
     for (const auto& iter: arr) {
-        out.push_back(iter.toString().toStdString());
+        out.push_back(iter.toString());
     }
     return out;
 }

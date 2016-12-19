@@ -1,9 +1,10 @@
 #ifndef COMMON_WS_H
 #define COMMON_WS_H
 
-#include <string>
+#include <QString>
+//#include <string>
 #include <vector>
-using std::string;
+//using std::string;
 using std::vector;
 
 enum CmdArgType_FromTango {
@@ -44,7 +45,7 @@ enum CmdArgType_FromTango {
 
 enum AttrDataFormat_FromTango { SCALAR, SPECTRUM, IMAGE, FMT_UNKNOWN};
 
-enum class TypeReq {ATTRIBUTE,COMMAND,ERROR,UNKNOWN};
+enum class TypeReq {ATTRIBUTE,COMMAND,UNKNOWN};
 enum class ValOrArr {VALUE,ARRAY,UNKNOWN};
 enum class TypeData {BOOL,INT,DOUBLE,STRING,NONE};
 
@@ -56,7 +57,7 @@ struct TangoAttrSpectrOrImage
     int dimX {0};
     int dimY {0};
 
-    vector<string> ansStringArray;
+    vector<QString> ansStringArray;
     vector<bool> ansBoolArray;
     vector<int> ansIntArray;
     vector<double> ansDoubleArray;
@@ -67,7 +68,7 @@ struct TangoAttrOrCommandVal
     bool hasData {false};
     TypeData typeData {TypeData::NONE};
 
-    string strVal;
+    QString strVal;
     bool boolVal;
     int intVal;
     double doubleVal;
@@ -79,7 +80,7 @@ struct TangoCommAnsArr
     bool hasData {false};
     TypeData typeData {TypeData::NONE};
 
-    vector<string> ansStringArray;
+    vector<QString> ansStringArray;
     vector<bool> ansBoolArray;
     vector<int> ansIntArray;
     vector<double> ansDoubleArray;
@@ -88,25 +89,37 @@ struct TangoCommAnsArr
 struct TangoDataFromCommand
 {
     ValOrArr varOrArr {ValOrArr::UNKNOWN};
-    string commandName;
-    string idReq;
+    QString commandName;
+    QString idReq;
     TangoCommAnsArr argoutArray;
     TangoAttrOrCommandVal argoutValue;
 };
 
 struct TangoDataFromAttribute {
     ValOrArr varOrArr {ValOrArr::UNKNOWN};
-    string attrName;
-    string qual;
+    QString attrName;
+    QString qual;
     int timestamp;
     TangoAttrOrCommandVal retValue;
     TangoAttrSpectrOrImage retArray;
+};
+
+struct ErrorData
+{
+    QString errorMess;
+    QString command_name;
+    QString id_req;
 };
 
 struct ParsedWsJsonData
 {
     // тип запроса для возвращаемых данных
     TypeReq typeReq {TypeReq::UNKNOWN};
+    // Является ли сообщением об ошибке
+    bool hasError {false};
+    // Данные об ошибках из сервера, сейчас в-основном размер равен 1, в случае
+    // наличия сообщений об ошибках
+    vector<ErrorData> errorData;
     // Возвращаемые данные для атрибутов
     vector<TangoDataFromAttribute> dataFromAttr;
     // Возвращаемые данные для команд

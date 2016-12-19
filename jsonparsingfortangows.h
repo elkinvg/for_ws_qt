@@ -13,7 +13,7 @@ class JsonParsingForTangoWs
 {
 public:
     //JsonParsingForTangoWs();
-    static ParsedWsJsonData parseJson(const QString& json);
+    static ParsedWsJsonData parseJson(const QString& json, bool onlyError = false);
 private:
 
     static vector<TangoDataFromAttribute> getDataFromAttr(QJsonArray &data);
@@ -23,7 +23,7 @@ private:
     static TangoAttrOrCommandVal getAttrOrCommValue(QJsonValue& jsonVal);
 
     static vector<double> dataFromJsonArrayDouble(const QJsonArray &arr);
-    static vector<string> dataFromJsonArrayString(const QJsonArray &arr);
+    static vector<QString> dataFromJsonArrayString(const QJsonArray &arr);
     static vector<bool> dataFromJsonArrayBool(const QJsonArray &arr);
 
 
