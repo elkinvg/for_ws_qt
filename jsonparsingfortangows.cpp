@@ -4,11 +4,6 @@
 
 #include <QJsonDocument>
 
-#include <QDebug>
-//JsonParsingForTangoWs::JsonParsingForTangoWs()
-//{
-
-//}
 
 ParsedWsJsonData JsonParsingForTangoWs::parseJson(const QString &json, bool onlyError)
 {
@@ -65,9 +60,9 @@ ParsedWsJsonData JsonParsingForTangoWs::parseJson(const QString &json, bool only
                         if (!fromErr.contains("type_req")) {
                             return parsedJsonData;
                         }
-                        if(jsonObj["type_req"].toString() == "attribute")
+                        if(fromErr["type_req"].toString() == "attribute")
                             parsedJsonData.typeReq = TypeReq::ATTRIBUTE;
-                        if(jsonObj["type_req"].toString() == "command")
+                        if(fromErr["type_req"].toString() == "command")
                             parsedJsonData.typeReq = TypeReq::COMMAND;
 
                         if (fromErr.contains("error")) {
