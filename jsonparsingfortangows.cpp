@@ -5,7 +5,7 @@
 #include <QJsonDocument>
 
 
-ParsedWsJsonData JsonParsingForTangoWs::parseJson(const QString &json, bool onlyError)
+ParsedWsJsonData JsonParsingForTangoWs::parseJson(const QString &json, bool onlyCommand)
 {
     QJsonDocument jsondoc = QJsonDocument::fromJson(json.toUtf8());
     ParsedWsJsonData parsedJsonData;
@@ -21,14 +21,13 @@ ParsedWsJsonData JsonParsingForTangoWs::parseJson(const QString &json, bool only
         if (!isEvent)
             return parsedJsonData;
         bool hasData = jsonObj.contains("data");
-        if (onlyError) {
-            if (jsonObj["event"].toString() != "error")
-                return parsedJsonData;
-        }
+
         if (jsonObj["event"].toString() == "read") {
             if(jsonObj.find("type_req") != jsonObj.end()) {
                 if(jsonObj["type_req"] == "attribute") {
                     parsedJsonData.typeReq = TypeReq::ATTRIBUTE;
+                    if (onlyCommand)
+                        return parsedJsonData;
 
                     if (hasData) {
                         if (jsonObj["data"].isArray()) {
@@ -86,6 +85,46 @@ ParsedWsJsonData JsonParsingForTangoWs::parseJson(const QString &json, bool only
     }
 
     return parsedJsonData;
+}
+
+QString JsonParsingForTangoWs::generateJsonForCommand(QString command)
+{
+    QJsonDocument json;
+    QJsonObject jObj;
+    jObj.insert("command",command);
+    json.setObject(jObj);
+    return json.toJson(QJsonDocument::Compact);
+}
+
+QString JsonParsingForTangoWs::generateJsonForCommand(QString command, double val)
+{
+    QJsonDocument json;
+    QJsonObject jObj;
+    jObj.insert("command",command);
+    jObj.insert("argin",val);
+    json.setObject(jObj);
+    return json.toJson(QJsonDocument::Compact);
+}
+
+QString JsonParsingForTangoWs::generateJsonForCommand(QString command, QString device, double val)
+{
+    QJsonDocument json;
+    QJsonObject jObj;
+    QJsonArray jArr = {device,QString::number(val)};
+    jObj.insert("command",command);
+    jObj.insert("argin",jArr);
+    json.setObject(jObj);
+    return json.toJson(QJsonDocument::Compact);
+}
+
+QString JsonParsingForTangoWs::generateJsonForCommand(QString command, QString device)
+{
+    QJsonDocument json;
+    QJsonObject jObj;
+    jObj.insert("command",command);
+    jObj.insert("argin",device);
+    json.setObject(jObj);
+    return json.toJson(QJsonDocument::Compact);
 }
 
 vector<TangoDataFromAttribute> JsonParsingForTangoWs::getDataFromAttr(QJsonArray &data)

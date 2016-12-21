@@ -12,8 +12,14 @@
 class JsonParsingForTangoWs
 {
 public:
-    //JsonParsingForTangoWs();
-    static ParsedWsJsonData parseJson(const QString& json, bool onlyError = false);
+    static ParsedWsJsonData parseJson(const QString& json, bool onlyCommand = false);
+    static QString generateJsonForCommand(QString command);
+    static QString generateJsonForCommand(QString command, double val);
+    static QString generateJsonForCommand(QString command, QString device, double val);
+    static QString generateJsonForCommand(QString command, QString device);
+
+
+
 private:
 
     static vector<TangoDataFromAttribute> getDataFromAttr(QJsonArray &data);
